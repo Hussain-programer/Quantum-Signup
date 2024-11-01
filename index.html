@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Link: Advanced Registration</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0ff;
+            --secondary-color: #000;
+            --accent-color: #00ffaa;
+            --error-color: #ff4136;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes matrixRain {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        @keyframes glitch {
+            0% { 
+                transform: translate(0);
+                text-shadow: -2px 0 var(--primary-color), 2px 2px var(--accent-color);
+            }
+            50% { 
+                transform: translate(-2px, 2px);
+                text-shadow: 2px -2px var(--accent-color), -2px -2px var(--primary-color);
+            }
+            100% { 
+                transform: translate(0);
+                text-shadow: -2px 0 var(--primary-color), 2px 2px var(--accent-color);
+            }
+        }
+
+        @keyframes pulse {
+            0% { 
+                box-shadow: 0 0 20px var(--primary-color), 
+                            inset 0 0 20px var(--primary-color);
+            }
+            50% { 
+                box-shadow: 0 0 40px var(--primary-color), 
+                            inset 0 0 40px var(--primary-color);
+            }
+            100% { 
+                box-shadow: 0 0 20px var(--primary-color), 
+                            inset 0 0 20px var(--primary-color);
+            }
+        }
+
+        body {
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(0deg, transparent 0%, 
+                        rgba(0, 255, 255, 0.1) 50%, 
+                        transparent 100%);
+            animation: matrixRain 20s linear infinite;
+            pointer-events: none;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            transform-style: preserve-3d;
+            transition: all 0.3s ease;
+        }
+
+        .form {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .form.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            animation: glitch 5s infinite;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 15px var(--primary-color);
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error input {
+            border-color: var(--error-color);
+        }
+
+        .error .error-message {
+            display: block;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            color: #fff;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Cyber Terminal Loading Effect */
+        .loading {
+            position: relative;
+            width: 100%;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.2);
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30%;
+            height: 100%;
+            background: var(--primary-color);
+            animation: loading 2s infinite linear;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Signup Form -->
+        <form id="signupForm" class="form active" onsubmit="return validateSignup()">
+            <h2><i class="fas fa-microchip"></i> Neural Link Registration</h2>
+            
+            <div class="form-group" id="nameGroup">
+                <input type="text" id="name" placeholder=" " required>
+                <label for="name"><i class="fas fa-user-circle"></i> Neural ID (Name)</label>
+                <div class="error-message" id="nameError">Name must be at least 3 characters long</div>
+            </div>
+
+            <div class="form-group" id="emailGroup">
+                <input type="email" id="email" placeholder=" " required>
+                <label for="email"><i class="fas fa-network-wired"></i> Cyber Mail</label>
+                <div class="error-message" id="emailError">Invalid email address</div>
+            </div>
+
+            <div class="form-group" id="passwordGroup">
+                <input type="password" id="password" placeholder=" " required>
+                <label for="password"><i class="fas fa-key"></i> Security Code</label>
+                <div class="error-message" id="passwordError">Password must be at least 8 characters with one uppercase, one number</div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn" onclick="showLogin()">
+                    <i class="fas fa-plug"></i> Login
+                </button>
+                <button type="submit" class="btn">
+                    <i class="fas fa-satellite-dish"></i> Initialize
+                </button>
+            </div>
+            <div class="loading"></div>
+        </form>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="form" onsubmit="return validateLogin()">
+            <h2><i class="fas fa-broadcast-tower"></i> Neural Link Access</h2>
+            
+            <div class="form-group" id="loginEmailGroup">
+                <input type="email" id="loginEmail" placeholder=" " required>
+                <label for="loginEmail"><i class="fas fa-network-wired"></i> Cyber Mail</label>
+                <div class="error-message" id="loginEmailError">Invalid email address</div>
+            </div>
+
+            <div class="form-group" id="loginPasswordGroup">
+                <input type="password" id="loginPassword" placeholder=" " required>
+                <label for="loginPassword"><i class="fas fa-key"></i> Security Code</label>
+                <div class="error-message" id="loginPasswordError">Password must be at least 8 characters</div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn" onclick="showSignup()">
+                    <i class="fas fa-user-plus"></i> Register
+                </button>
+                <button type="submit" class="btn">
+                    <i class="fas fa-satellite"></i> Access
+                </button>
+            </div>
+            <div class="loading"></div>
+        </form>
+    </div>
+
+    <script>
+        // Form Validation Functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function validatePassword(password) {
+            // At least 8 characters, one uppercase, one number
+            const re = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            return re.test(password);
+        }
+
+        function validateSignup() {
+            let isValid = true;
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+
+            // Name validation
+            if (name.value.trim().length < 3) {
+                document.getElementById('nameGroup').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('nameGroup').classList.remove('error');
+            }
+
+            // Email validation
+            if (!validateEmail(email.value)) {
+                document.getElementById('emailGroup').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('emailGroup').classList.remove('error');
+            }
+
+            // Password validation
+            if (!validatePassword(password.value)) {
+                document.getElementById('passwordGroup').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('passwordGroup').classList.remove('error');
+            }
+
+            return isValid;
+        }
+
+        function validateLogin() {
+            let isValid = true;
+            const email = document.getElementById('loginEmail');
+            const password = document.getElementById('loginPassword');
+
+            // Email validation
+            if (!validateEmail(email.value)) {
+                document.getElementById('loginEmailGroup').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('loginEmailGroup').classList.remove('error');
+            }
+
+            // Password validation
+            if (password.value.length < 8) {
+                document.getElementById('loginPasswordGroup').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('loginPasswordGroup').classList.remove('error');
+            }
+
+            return isValid;
+        }
+
+        // Form Navigation Functions
+        function showLogin() {
+            document.getElementById('signupForm').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('signupForm').classList.add('active');
+        }
+    </script>
+</body>
+</html>
